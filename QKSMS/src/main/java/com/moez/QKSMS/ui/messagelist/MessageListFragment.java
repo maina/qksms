@@ -98,6 +98,7 @@ public class MessageListFragment extends QKFragment implements ActivityLauncher,
     private static final int MENU_VIEW_SLIDESHOW = 16;
     private static final int MENU_VIEW_MESSAGE_DETAILS = 17;
     private static final int MENU_DELETE_MESSAGE = 18;
+    private static final int MENU_PRINT_MESSAGE = 33;
     private static final int MENU_SEARCH = 19;
     private static final int MENU_DELIVERY_REPORT = 20;
     private static final int MENU_FORWARD_MESSAGE = 21;
@@ -407,6 +408,7 @@ public class MessageListFragment extends QKFragment implements ActivityLauncher,
         if (mIsSmsEnabled) {
             dialog.addMenuItem(R.string.delete_message, MENU_DELETE_MESSAGE);
         }
+        dialog.addMenuItem(R.string.print_message, MENU_PRINT_MESSAGE);
 
         dialog.buildMenu(l);
         dialog.show();
@@ -487,6 +489,9 @@ public class MessageListFragment extends QKFragment implements ActivityLauncher,
 
             case R.id.menu_delete_conversation:
                 DialogHelper.showDeleteConversationDialog(mContext, mThreadId);
+                return true;
+            case R.id.menu_print_conversation:
+                MessageUtils.printMessage(getActivity(),"");
                 return true;
         }
         return super.onOptionsItemSelected(item);
@@ -709,6 +714,10 @@ public class MessageListFragment extends QKFragment implements ActivityLauncher,
             switch ((int) id) {
                 case MENU_EDIT_MESSAGE:
                     editMessageItem(mMsgItem);
+                    break;
+                case MENU_PRINT_MESSAGE:
+                    editMessageItem(mMsgItem);
+                    MessageUtils.printMessage(getActivity(),mMsgItem.mBody);
                     break;
 
                 case MENU_COPY_MESSAGE_TEXT:

@@ -338,6 +338,7 @@
     <string name="view_delivery_report">View report</string>
     <!-- Context menu item on an individual message for deleting only that message -->
     <string name="delete_message">Delete</string>
+    <string name="print_message">Print</string>
     <!-- Abbreviation for "kilobyte" -->
     <string name="kilobyte">KB</string>
 
@@ -354,6 +355,7 @@
     <string name="restart_message">These changes will take effect the next time QKSMS is opened</string>
     <!--Dialog title for asking if a user wants to delete a conversation-->
     <string name="delete_conversation">Delete conversations</string>
+    <string name="print_conversation">Print conversations</string>
     <!--Dialog title for asking if a user wants to delete all failed messages-->
     <string name="delete_all_failed">Delete failed messages</string>
     <!--CDialog title for asking if a user wants to delete a conversation-->

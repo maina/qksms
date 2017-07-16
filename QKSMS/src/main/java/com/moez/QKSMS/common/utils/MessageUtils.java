@@ -37,6 +37,10 @@ import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Environment;
 import android.os.Handler;
+import android.print.PrintAttributes;
+import android.print.PrintDocumentAdapter;
+import android.print.PrintJob;
+import android.print.PrintManager;
 import android.provider.ContactsContract;
 import android.provider.MediaStore;
 import android.provider.Telephony.Mms;
@@ -47,6 +51,8 @@ import android.text.format.Time;
 import android.text.style.URLSpan;
 import android.util.Log;
 import android.webkit.MimeTypeMap;
+import android.webkit.WebView;
+import android.webkit.WebViewClient;
 import android.widget.Toast;
 import com.android.mms.transaction.MmsMessageSender;
 import com.google.android.mms.ContentType;
@@ -84,6 +90,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -95,6 +102,8 @@ import java.util.concurrent.ConcurrentHashMap;
  * An utility class for managing messages.
  */
 public abstract class MessageUtils {
+
+    private static ArrayDeque<PrintJob> mPrintJobs = new ArrayDeque<>();
 
     /**
      * Copies media from an Mms to the DrmProvider
@@ -1276,8 +1285,6 @@ public abstract class MessageUtils {
      * @param activity
      * @param msgUri    the MMS message URI in database
      * @param slideshow the slideshow to save
-     * @param persister the PDU persister for updating the database
-     * @param sendReq   the SendReq for updating the database
      */
     public static void viewMmsMessageAttachment(Activity activity, Uri msgUri,
                                                 SlideshowModel slideshow, AsyncDialog asyncDialog) {
@@ -1442,5 +1449,50 @@ public abstract class MessageUtils {
 
     private static void log(String msg) {
         Log.d(TAG, "[MsgUtils] " + msg);
+    }
+
+   static WebView mWebView;
+
+    public static void printMessage(Context context,String message){
+        // Create a WebView object specifically for printing
+        WebView webView = new WebView(context);
+        webView.setWebViewClient(new WebViewClient() {
+
+            public boolean shouldOverrideUrlLoading(WebView view, String url) {
+                return false;
+            }
+
+            @Override
+            public void onPageFinished(WebView view, String url) {
+                Log.i(TAG, "page finished loading " + url);
+                createWebPrintJob(context,view);
+                mWebView = null;
+            }
+        });
+
+        // Generate an HTML document on the fly:
+        String htmlDocument = "<html><body><h1>Test Content</h1><p> TEST PRINT MESSAGE START : "+message+" END PRINT MESSAGE</p></body></html>";
+        webView.loadDataWithBaseURL(null, htmlDocument, "text/HTML", "UTF-8", null);
+
+        // Keep a reference to WebView object until you pass the PrintDocumentAdapter
+        // to the PrintManager
+        mWebView = webView;
+    }
+    private static void createWebPrintJob(Context context,WebView webView) {
+
+        // Get a PrintManager instance
+        PrintManager printManager = (PrintManager) context
+                .getSystemService(Context.PRINT_SERVICE);
+
+        // Get a print adapter instance
+        PrintDocumentAdapter printAdapter = webView.createPrintDocumentAdapter();
+
+        // Create a print job with name and adapter instance
+        String jobName = context.getString(R.string.app_name) + " Document";
+        PrintJob printJob = printManager.print(jobName, printAdapter,
+                new PrintAttributes.Builder().build());
+
+        // Save the job object for later status checking
+        mPrintJobs.add(printJob);
     }
 }
